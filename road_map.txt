@@ -1,0 +1,9 @@
+This is a project guideline road map for the custom mav calendar and scheduling system.
+
+# contributors -- 
+	Nathan Brophy 
+# date of origin --
+	7-12-2018
+# planning and scaffolding --
+
+	
