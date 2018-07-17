@@ -1,11 +1,5 @@
-/**
- * @author Nathan Brophy
- * @version v1.0.0
- */
-const $_       = angular.element;
-var dynamicCal = angular.module("dynamicCal", []); //register the module
+var dynamicCal = angular.module("dynamicCal", []);
 
-//Register the calendar directive 
 dynamicCal.directive('calCalendar', ['$document', 'calEventHandler', 'calDayObject', '$timeout', function ($document, calEventHandler, calDayObject, $timeout) {
     return {
         restrict: 'E',
@@ -24,95 +18,73 @@ dynamicCal.directive('calCalendar', ['$document', 'calEventHandler', 'calDayObje
     }
 }]);
 
-//Set up and register the controller 
+
+
+
 dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', function ($scope, $timeout, calDayObject) {
     if ($scope.config == null) $scope.config = {};
     this.calendar = $scope.config;
     this.onEventChange = $scope.onEventChange;
-
-    /**
-     * @param event is the event object coming in from the calendar (most likely a person's schedule time)
-     * If there is a date change when someone edits their schedule, then here we update the events in the scope to reflect
-     * the new changes.  
-     */
     this.eventDateChange = function (event) {
         var weeks = $scope.view.weeks;
         if (weeks != undefined) {
             for (var i = 0; i < weeks.length; i++) {
-                var current_week = weeks[i];
-                for (var j = 0; j < current_week.length; j++) {
-                    var current_day = current_week[j];
-                    current_day.removeEvent(event);
-                    if ($scope.isSameDay(current_day.date, event.start)) {
-                        current_day.addEvent(event);
+                for (var j = 0; j < weeks[i].length; j++) {
+                    weeks[i][j].removeEvent(event);
+                    if ($scope.isSameDay(weeks[i][j].date, event.start)) {
+                        weeks[i][j].addEvent(event);
                     }
                 }
             }
         }
     }
 
-    $scope.count = 0; //global control to track the number of events to be updated
-    $scope.$watchCollection('events', function (newVal, oldVal) {  //watch the events collection for changes, and dynamically update when changes occur.
-        $scope.updateEvents();
+
+
+    $scope.count = 0;
+    $scope.$watchCollection('events', function (newVal, oldVal) {
+        $scope.updateEvents($scope.count);
     }, true);
 
-    /**
-     * @param obj is the event's date to be checked
-     * @returns {Boolean} true or false depending on whether or not the objects constructor is a Date or not.
-     */
-    $scope.isDate = function (obj) {
-        return obj.constructor === Date;
-    }
 
+    $scope.isDate = function (date) {
+        return date.constructor === Date;
+    }
     $scope.dayEvents = [];
     $scope.lastLength = 0;
 
-    /**
-     * @param {Date} date1 is one of the dates that we are checking for equality for 
-     * @param {Date} date2 is the other date that we are checking equality against
-     * @returns {Boolean} true or false depending on whether the dates are the same or not  
-     */
+
     $scope.isSameDay = function (date1, date2) {
         return date1.getDate() == date2.getDate() && date1.getMonth() == date2.getMonth() && date1.getFullYear() == date2.getFullYear();
     }
 
-    /**
-     * Function to update the events displayed in the current calendar view
-     */
-    $scope.updateEvents = function () {
-        /**
-         * @param {Event} event is a calendar event taken in from the array of events
-         * @param {Event} other is a calendar event taken in from the array of events 
-         * @returns {number} returns the difference of event's time and other's time to be used in the array sort method
-         * In case of collision with the events being started at the same time, but ending at different times, the end times 
-         * are then used instead of the start times as the sort values.  
-         */
-        var event_sorter = function(event, other){
-            var start_time_difference = event.start.getTime() - other.start.getTime();
-            return (start_time_difference != 0) ? start_time_difference : event.end.getTime() - other.end.getTime();
-        };
+    $scope.updateEvents = function (c) {
 
         if ($scope.events != undefined) {
-            var eventCopy = $scope.events.slice();
-            eventCopy.sort(event_sorter);
+            var eventCopy = [].concat($scope.events);
+
+            eventCopy.sort(function (a, b) {
+                var startDif = a.start.getTime() - b.start.getTime();
+                if (startDif != 0) return startDif;
+                else return a.end.getTime() - b.end.getTime();
+            });
+
 
             var eventIndex = 0;
             var weeks = $scope.view.weeks;
             if (weeks != undefined) {
                 for (var i = 0; i < weeks.length; i++) {
-                    var current_week = weeks[i];
-                    for (var j = 0; j < current_week.length; j++) {
-                        var day = current_week[j];
-                        if (!day.isPlaceholder) { //make sure the day is actually an event we care about
+                    for (var j = 0; j < weeks[i].length; j++) {
+                        if (!weeks[i][j].isPlaceholder) {
                             var events = [];
-                            var nextDay = new Date(day.date.getFullYear(), day.date.getMonth(), day.date.getDate() + 1);
+                            var nextDay = new Date(weeks[i][j].date.getFullYear(), weeks[i][j].date.getMonth(), weeks[i][j].date.getDate() + 1);
                             while (eventIndex < eventCopy.length && eventCopy[eventIndex].start.getTime() < nextDay.getTime()) {
-                                if ($scope.isSameDay(eventCopy[eventIndex].start, day.date)) {
+                                if ($scope.isSameDay(eventCopy[eventIndex].start, weeks[i][j].date)) {
                                     events.push(eventCopy[eventIndex]);
                                 }
                                 eventIndex++;
                             }
-                            day.setEvents(events);  //set the day's events to the ones found in the porevious loop
+                            weeks[i][j].setEvents(events);
                         }
                     }
                 }
@@ -124,82 +96,60 @@ dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', 
     var today = new Date();
     today.setHours(0, 0, 0, 0);
     $scope.today = today;
-    //Object to hold the default configuration settings.  Date is not included becase we don't want to use the memory associated with 
-    //creating and storing that date object copy unless we need to.
-    const CONFIG_DEFAULTS = {
-        'editStep'      : .5,
-        'viewStart'     : 0,
-        'viewEnd'       : 24,
-        'durration'     : 'week',
-        'configType'    : 'schedule',
-        'canChangeType' : true,
-        'showHead'      : true,
-        'cellHeight'    : 20
-    };
-                                                                          //get the config options, and set defaults for null values
-    var config = $scope.config != null ? $scope.config : {};              //get the calendar configurations
-    if (config.editStep == undefined)      config.editStep      = CONFIG_DEFAULTS.editStep;        //set the default for editStep
-    if (config.viewStart == undefined)     config.viewStart     = CONFIG_DEFAULTS.viewStart;       //set the default for viewStart
-    if (config.viewEnd == undefined)       config.viewEnd       = CONFIG_DEFAULTS.viewEnd;         //set the default for viewEnd
-    if (config.durration == undefined)     config.durration     = CONFIG_DEFAULTS.durration;       //set the default for durration
-    if (config.type == undefined)          config.type          = CONFIG_DEFAULTS.configType;      //set the default for type
-    if (config.canChangeType == undefined) config.canChangeType = CONFIG_DEFAULTS.canChangeType;   //set the default for canChangeType
-    if (config.date == undefined)          config.date          = new Date(today);                 //set the default for date
-    if (config.showHead == undefined)      config.showHead      = CONFIG_DEFAULTS.showHead;        //set the default for showHead
-    if (config.cellHeight == undefined)    config.cellHeight    = CONFIG_DEFAULTS.cellHeight;      //set the default for cellHeight
+
+    var config = $scope.config != null ? $scope.config : {};
+    if (config.editStep == undefined) config.editStep = .5;
+    if (config.viewStart == undefined) config.viewStart = 0;
+    if (config.viewEnd == undefined) config.viewEnd = 24;
+    if (config.durration == undefined) config.durration = "week";
+    if (config.type == undefined) config.type = "schedule";
+    if (config.canChangeType == undefined) config.canChangeType = true;
+    if (config.date == undefined) config.date = new Date(today);
+    if (config.showHead == undefined) config.showHead = true;
+    if (config.cellHeight == undefined) config.cellHeight = 20;
+    //if (config. == undefined) config. = ;
 
     config.title = "";
-    config.startDate = new Date(today); //make a copy of the current date to default the startDate to 
-    config.endDate = new Date(today);   //make a copy of the current date to default the endDate to
+    config.startDate = new Date(today);
+    config.endDate = new Date(today);
     config.today = today;
     config.months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     config.daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    config.prev = function () { //function that moves the current calendar week back one 
+    config.prev = function () {
         this.moveView(-1);
     };
-    config.next = function () { //function that moves the current calendar week forward one
+    config.next = function () {
         this.moveView(1);
     };
-    config.goToToday = function () { //function that moves the current calendar to the current date
+    config.goToToday = function () {
+        console.log(this.today);
         this.changeDate(this.today);
     };
-    /**
-     * @param {Date} date is the date object coming in that we wish to change the calendar view to 
-     */
-    config.changeDate = function (date) { 
-        this.date = new Date(date); //make a copy of the incoming date object to store in our object date field
+    config.changeDate = function (date) {
+        this.date = new Date(date);
         this.load();
     };
-    /**
-     * @param {number} multiplier is essentially the step forward that we want to move 
-     */
     config.moveView = function (multilpier) {
         switch (this.durration) {
             case "month":
-                this.date.setDate(1); //changing the month so change the current day to th 1st 
-                //we use 1 * multiplier here to take advantage of JS implicit type conversions (in case the multiplier comes in as a string from a json object)
-                this.date.setMonth(this.date.getMonth() + (1 * multilpier)); 
+                this.date.setDate(1);
+                this.date.setMonth(this.date.getMonth() + (1 * multilpier));
                 break;
             case "day":
-                //we use 1 * multiplier here to take advantage of JS implicit type conversions (in case the multiplier comes in as a string from a json object)
                 this.date.setDate(this.date.getDate() + (1 * multilpier));
                 break;
-            default: //"week"
-                //The default is week, so we advance or backtrack the calendar by 7 days
+            default:
                 this.date.setDate(this.date.getDate() + (7 * multilpier));
         }
-        this.load(); //load the calendar in after we change the object fields 
+        this.load();
     };
-    /**
-     * @param {String} durration is an optional parameter that can be used to change the current duration of the calendar before we load new content in
-     */
     config.load = function (durration) {
         if (durration != undefined) this.durration = durration;
         this.days = [];
         this.date.setHours(0, 0, 0, 0);
         var startDate = new Date(this.date);
         var endDate = new Date(this.date);
-        switch (this.durration) { //set the calendar title based on the duration in the configuration and change the date variables
+        switch (this.durration) {
             case "month":
                 startDate.setDate(1);
                 endDate.setMonth(endDate.getMonth() + 1);
@@ -214,66 +164,66 @@ dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', 
                 endDate.setDate(endDate.getDate() + 6 - endDate.getDay());
                 this.title = this.months[startDate.getMonth()] + " " + startDate.getDate() + ", " + startDate.getFullYear() + " - " + this.months[endDate.getMonth()] + " " + endDate.getDate() + ", " + endDate.getFullYear()
         }
-        //keep track of the old start and end dates before updating them
         var oldStartDate = this.startDate;
-        var oldEndDate   = this.endDate;
-        //update the start and end dates to reflect the changes made by the switch 
+        var oldEndDate = this.endDate;
+
         this.startDate = startDate;
-        this.endDate   = endDate;
+        this.endDate = endDate;
+
+
+        console.log("load", startDate, endDate);
 
         var beginning = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() - startDate.getDay());
-        var end = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate() + (6 - endDate.getDay()));
-        //get the number of fractional weeks in the current month and then round up
+        var end = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate() + (6 - endDate.getDay()))
         var numberOfWeeks = Math.ceil((((end.getTime() - beginning.getTime()) / 1000 / 60 / 60 / 24)) / 7);
 
-        if (numberOfWeeks == 1) { //this means we are in week view 
+        if (numberOfWeeks == 1) {
             beginning = new Date(startDate);
             end = new Date(endDate);
         }
 
 
-        var calendarMonth = new Array(numberOfWeeks);   //this is our month, it's an array of all of the weeks in that month
-        var cur = new Date(beginning);                  //this is the begining of the current calendar view
-        for (var i = 0; i < numberOfWeeks; i++) {       //loop through the number of weeks in the month
-            calendarMonth[i] = new Array();             //create a new array of days to be stored in our weeks
-            for (var j = 0; j < 7 && cur <= end; j++) { //loop through the number of days in a week or until end of month
-                var calendarDay = new calDayObject(cur, !(cur >= startDate && cur <= endDate))
-                calendarMonth[i].push(calendarDay);
-                cur.setDate(cur.getDate() + 1);         //advance cur to be the next day in the month
+        weekArray = new Array(numberOfWeeks);
+        var cur = new Date(beginning);
+        for (var i = 0; i < numberOfWeeks; i++) {
+            weekArray[i] = new Array();
+            for (var j = 0; j < 7 && cur <= end; j++) {
+                weekArray[i].push(new calDayObject(cur, !(cur >= startDate && cur <= endDate)));
+                //if (cur >= startDate && cur <= endDate) {
+                //    weekArray[i].push({ date: new Date(cur), events: [] });
+                //}
+                //else weekArray[i].push({ date: -cur.getDate(), events: [] });
+                cur.setDate(cur.getDate() + 1);
             }
         }
-        this.weeks = calendarMonth;
+        this.weeks = weekArray;
         if (numberOfWeeks == this.startDate.getMonth()) {
             window.lastWeeks = window.weeks;
-            window.weeks = JSON.stringify(calendarMonth);
-            console.log("=====", calendarMonth);//startDate, endDate);
+            window.weeks = JSON.stringify(weekArray);
+            console.log("=====", weekArray);//startDate, endDate);
         }
 
-        $scope.updateEvents(); //update the shown events in the calendar view
+        $scope.updateEvents(-1);
 
         if (oldEndDate.getTime() != this.endDate.getTime() || oldStartDate.getTime() != this.startDate.getTime()) {
-            //check to make sure there was actually a change in the dates to display, and that it's safe to use the view change function
             if ($scope.onViewChange != undefined && $scope.onViewChange.constructor == Function) {
+                //console.log("TEST", this.endDate, this.startDate);
                 var _this = this;
-                $timeout(function () { //here is where we actually change the view 
+                $timeout(function () {
                     $scope.onViewChange(_this.startDate, _this.endDate);
                 }, 0);
             }
         }
-        $timeout(function () { $scope.$apply(); }); //apply and digest the changes made in the previous update in the root
-    }; //end load method
+        $timeout(function () { $scope.$apply(); });
+    };
 
-    $scope.view = config; //update the current view to match the newly created config options 
+    $scope.view = config;
 
-    /**
-     * Here we are watching the specific fields of the view after we update it to match our new config.
-     * When there is a change detected by $watch, we fire off our callback function that loads the view with the new config.
-     */
-    $scope.$watch('[view.viewStart, view.viewEnd, view.durration,view.date.getTime()]', function (newVal, oldVal, scope) {
-        //we use scope and not $scope here because it is safer to pass it in through the callback and let angular do resolutions
-        scope.view.load(scope.view.durration);
+    $scope.$watch('[view.viewStart, view.viewEnd, view.durration,view.date.getTime()]', function (n, o) {
+        console.log("duration changed", n, o);
+        $scope.view.load($scope.view.durration);
     });
-    $scope.view.load(); //fire off the load event if there isn't a change in one of the fields i.e. initial view
+    $scope.view.load();
 
 }]);
 
@@ -281,9 +231,19 @@ dynamicCal.directive('calDay', ['$document', 'calEventHandler', function ($docum
     return {
         restrict: 'E',
         templateUrl: 'calDay.html',
+        //template: ' <div class="cal-day-header">{{ date.getDate() }} - {{events.length}} Events</div> \
+        //<div class="cal-container"> \
+        //    <div class="cal-calendar-grid"> \
+        //        <div ng-repeat="i in [] | range:calendar.viewStart:calendar.viewEnd:.5" ng-class="cal-hourMark : i % 1 == 0, cal-halfHourMark : i % 1 != 0"></div> \
+        //    </div> \
+        //    <cal-event ng-repeat="event in events" event="event.event" calendar="calendar" on-event-change="onEventChange" on-event-click="onEventClick" event-left="event.location.left" event-width="event.location.width"></cal-event> \
+        //</div> \
+        //',
         require: ['^calCalendar'],
         scope: {
             calendar: '=calendar',
+            //date: '=date',
+            //events: '=events',
             day: '=day',
             onEventClick: '=onEventClick',
             onEventChange: '=onEventChange',
@@ -293,17 +253,16 @@ dynamicCal.directive('calDay', ['$document', 'calEventHandler', function ($docum
         },
         controller: 'calDayCtrl',
         link: function (scope, elem, attrs, controller) {
-            var today = new Date(); 
-            today.setHours(0, 0, 0, 0);
+            //console.log("Day");
+            var today = new Date(); today.setHours(0, 0, 0, 0);
             if (scope.day.date < today) elem.addClass("cal-past");
             if (scope.day.date.getTime() == today.getTime()) elem.addClass("cal-today");
 
+            //scope.cellHeight = controller[0].cellHeight;
             scope.cellHeight = scope.calendar.cellHeight;
             scope.fullDaysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
             scope.daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-            /**
-             * @returns {Array} the array representing the overlay object in DOM standards, or empty if no matching elements
-             */
+            var $_ = angular.element;
             function getOverlay() {
                 var allLabels = elem.find('label');
                 for (var i = 0 ; i < allLabels.length; i++) {
@@ -319,27 +278,17 @@ dynamicCal.directive('calDay', ['$document', 'calEventHandler', function ($docum
                 }
                 return [];
             }
- 
-            /** 
-             * The following mouse events are used to control what happens when a calendar dat object is clicked and dragged to a new time.
-             */
+
 
             var startY, startTop, startBottom, overlay;
 
-            /**
-             * If there is no overlay currently, then we get the overlay to avoid a null error.
-             * The overlay is then removed via its remove method.
-             */
             function removeOverlay() {
                 if (overlay == undefined || overlay.length == 0) overlay = getOverlay()
                 overlay.remove();
             }
 
-            /**
-             * @param {MouseEvent} e is the mouse event object 
-             * Here we are checking to see if the mouse is in a container/event or not in the calendar.
-             * This method also handles the case that there is an overlay. 
-             */
+
+
             function mouseout(e) {
                 // Get Container where mouse moved to
                 var targetContainer = $_(e.relatedTarget);
@@ -351,7 +300,6 @@ dynamicCal.directive('calDay', ['$document', 'calEventHandler', function ($docum
                 
                 // If mouse moved out of initial container remove overlay
                 if (!overlayContainer[0].isSameNode(targetContainer[0])) {
-                    //remove the overlay and register the mouse event functions
                     removeOverlay();
                     elem.off('mouseup', mouseup);
                     elem.off('mousemove', mousemove);
@@ -368,15 +316,16 @@ dynamicCal.directive('calDay', ['$document', 'calEventHandler', function ($docum
                     var target = $_(e.target);
                     if (target.hasClass('cal-hourMark') || target.hasClass('cal-halfHourMark')) {
 
-                        startY          = e.pageY;
-                        startPageTop    = startY - e.offsetY;
+                        startY = e.pageY;
+                        startPageTop = startY - e.offsetY;
                         startPageBottom = startPageTop + e.target.offsetHeight;
-                        startTop        = e.target.offsetTop;
-                        startBottom     = startTop + e.target.offsetHeight;
-                        cellHeight      = e.target.offsetHeight;
+                        startTop = e.target.offsetTop;
+                        startBottom = startTop + e.target.offsetHeight;
+                        cellHeight = e.target.offsetHeight;
 
                         overlay = getOverlay();
                         overlay.css('top', e.target.offsetTop + "px").css('height', e.target.offsetHeight + "px");
+
 
                         // Set up events
                         elem.on('mouseup', mouseup);
@@ -386,18 +335,11 @@ dynamicCal.directive('calDay', ['$document', 'calEventHandler', function ($docum
                 }
             });
 
-            /**
-             * @see removeOverlay
-             */
-            function deleteOverlay() { //here we register the remove overlay function to the off mousedown event
+            function deleteOverlay() { 
                 removeOverlay();
                 $document.off('mousedown', deleteOverlay);
             }
 
-            /** 
-             * @param {MouseEvent} e is the mouse event that comes in when there is a mouse movement
-             * If we move an event on top of another or move an overlayed event, then we need to update the overlay heights
-             */ 
             function mousemove(e) {
                 var overlayHeight, overlayTop;
                 if (e.pageY >= startPageTop) {
@@ -411,21 +353,18 @@ dynamicCal.directive('calDay', ['$document', 'calEventHandler', function ($docum
                 overlay.css('top', overlayTop + "px").css('height', overlayHeight + "px");
             }
 
-            /** 
-             * @param {MouseEvent} e is the mouse event that comes in when there is a mouse movement
-             * We moved the event, so now we need to save these changes.
-             */ 
+
             function mouseup(e) {
                 var start = (overlay[0].offsetTop / cellHeight / 2) + 5;
                 var end = start + (overlay[0].offsetHeight / cellHeight / 2);
-                var startDate = new Date(scope.date); //create a deep copy of the start date
+                var startDate = new Date(scope.date);
                 startDate.setHours(0, 0, 0, 0);
                 startDate.setHours(Math.floor(start));
-                startDate.setMinutes(start * 60);
+                startDate.setMinutes(start % 1 * 60);
                 
                 var endDate = new Date(startDate);
                 endDate.setHours(Math.floor(end));
-                endDate.setMinutes(end * 60);
+                endDate.setMinutes(end % 1 * 60);
 
                 if (scope.onTimeSelect != undefined && scope.onTimeSelect.constructor == Function) {
                     scope.onTimeSelect(startDate, endDate);
@@ -437,19 +376,27 @@ dynamicCal.directive('calDay', ['$document', 'calEventHandler', function ($docum
                 $document.on('mousedown', deleteOverlay);
             }
 
+
+
             scope.$on("CAL-DATE-CHANGE", function () {
                 if ($_(elem)[0] == $_(calEventHandler.destDayElem)[0]) {
-                    try{ //try to update the calendar event
+                    try{
                         calEventHandler.event.start.setDate(scope.date.getDate());
                         calEventHandler.event.start.setMonth(scope.date.getMonth());
                         calEventHandler.event.start.setYear(scope.date.getFullYear());
                         calEventHandler.event.end.setDate(scope.date.getDate());
                         calEventHandler.event.end.setMonth(scope.date.getMonth());
                         calEventHandler.event.end.setYear(scope.date.getFullYear());
+                        //calEventHandler.event.date.setDate(scope.date.getDate());
+                        //calEventHandler.event.date.setMonth(scope.date.getMonth());
+                        //calEventHandler.event.date.setYear(scope.date.getFullYear());
                     }
                     catch (ex) {
                         console.log("Error :(", ex);
                     }
+
+
+
                     var divs = $_(calEventHandler.destDayElem).find('div');
                     for (var i = 0; i < divs.length; i++) {
                         if ($_(divs[i]).hasClass('cal-container')) {
@@ -463,7 +410,8 @@ dynamicCal.directive('calDay', ['$document', 'calEventHandler', function ($docum
             });
         }
     };
-}]); //end call day directive
+}]);
+
 
 dynamicCal.controller("calDayCtrl", ["$scope", function ($scope) {
     $scope.date = $scope.day.date;
@@ -474,25 +422,16 @@ dynamicCal.controller("calDayCtrl", ["$scope", function ($scope) {
     }
 }]);
 dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandler', '$timeout', function ($document, $templateCache, calEventHandler, $timeout) {
-    /**
-     * @param {Event} event is the event that we are currently inspecting
-     * @param {number} callHeight is the minimum height a cell can be
-     * @returns {number} the height of the current event
-     */
+
+
     var getHeight = function (event, cellHeight) {
         var startHours = event.start.getHours() + event.start.getMinutes() / 60;
-        var endHours   = event.end.getHours() + event.end.getMinutes() / 60;
+        var endHours = event.end.getHours() + event.end.getMinutes() / 60;
         if (endHours == 0 && event.start < event.end) endHours = 24;
         var height = (endHours - startHours) * (2 * cellHeight);
         if (height <= 0) height = cellHeight;  // Min height of cellHeight
         return height;
     }
-    /**
-     * @param {Event} event is the event that we are currently inspecting
-     * @param {number} cellHeight is the minimum height a cell can be
-     * @param {Date} startTime is the date object representing the start time of the cell
-     * @returns {number} position of the top of the cell 
-     */
     var getTop = function (event, cellHeight, startTime) {
         var startHours = event.start.getHours() + event.start.getMinutes() / 60;
         return (startHours - startTime) * 2 * cellHeight;
@@ -508,13 +447,21 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
             eventWidth: '=eventWidth',
             startTime: '=startTime',
             endTime: '=endTime'
-        },        
+        },
         require: ['^calCalendar', '^calDay'],
+
+        //templateUrl: 'calEvent.html',
         template: "<div class='cal-event-wrapper'><ng-include src='templateUrl'></ng-include> <label ng-show='event.edit' class='cal-resize'></label></div>",
+
         link: function (scope, elem, attrs, controllers) {
+            //console.log("Event", elem);
+            //console.log("Event", scope.onEventChange);
+            var $_ = angular.element;
             var calController = controllers[0];
             var dayController = controllers[1];
             scope.cellHeight = calController.calendar.cellHeight;
+
+
             scope.templateUrl = "calEvent.html";
             if (calController.calendar.eventTemplateUrl != null) scope.templateUrl = calController.calendar.eventTemplateUrl;
             else if (calController.calendar.eventTemplate != null) {
@@ -522,38 +469,51 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
                 $templateCache.put(tempUrl, calController.calendar.eventTemplate);
                 scope.templateUrl = tempUrl;
             }
+            
+
+
+
             elem.addClass("cal-event");
             if (scope.event.group != undefined) elem.addClass("cal-group-" + (scope.event.group % 20));
+
             var startY = 0, y = 0;
+
             function setDimentions() {
                 y = getTop(scope.event, scope.cellHeight, scope.startTime); // elem, { viewStart: scope.startTime, viewEnd: scope.endTime }); //scope.calendar);
                 elem.css("height", getHeight(scope.event, scope.cellHeight) + "px"); //elem, { viewStart: scope.startTime, viewEnd: scope.endTime }) + "px"); //scope.calendar) + "px");
                 elem.css("top", y + "px");
                 stepPx = 2 * scope.cellHeight * scope.calendar.editStep;
+
+                //console.log("SET DIMENTIONS", "height=" + getHeight(scope.event, scope.cellHeight), "top=" + y, "start=" + scope.event.start.getDate() + " " + scope.event.start.getHours() + ":" + scope.event.start.getMinutes(), "end=" + scope.event.end.getDate() + " " + scope.event.end.getHours() + ":" + scope.event.end.getMinutes());
+                //if(elem.parent().length > 0)
+                //    stepPx = elem.parent()[0].offsetHeight / ((scope.endTime - scope.startTime) / scope.calendar.editStep);// ((scope.calendar.viewEnd - scope.calendar.viewStart) / scope.calendar.editStep);
                 elem.css("width", scope.eventWidth);
                 elem.css("left", scope.eventLeft);
             }
-            scope.$watch("[startTime, endTime]", function (newVal, oldVal, scope) {
+            scope.$watch("[startTime, endTime]", function (newVal, oldVal) {
                 setDimentions();
             });
-            scope.$watch("[event.start, event.end, eventWidth, eventLeft]", function (newVal, oldVal, scope) {
+            scope.$watch("[event.start, event.end, eventWidth, eventLeft]", function (newVal, oldVal) {
                 setDimentions();
                 if (!calEventHandler.isChanging) {
-                    var oldDate = new Date(oldVal[0]); 
-                    oldDate.setHours(0, 0, 0, 0);
-                    var newDate = new Date(newVal[0]); 
-                    newDate.setHours(0, 0, 0, 0);
+                    var oldDate = new Date(oldVal[0]); oldDate.setHours(0, 0, 0, 0);
+                    var newDate = new Date(newVal[0]); newDate.setHours(0, 0, 0, 0);
                     if (newDate.getTime() != oldDate.getTime()) {
                         calController.eventDateChange(scope.event);
                     }
                     dayController.sortDay();
                 }
+                // Make 30 minute minimum
+                //if ((scope.event.end.getTime() - scope.event.start.getTime()) / 60000 < 30) {
+                //    scope.event.end.setHours(scope.event.start.getHours(), scope.event.start.getMinutes() + 30);
+                //}
                 if ((scope.event.end.getTime() - scope.event.start.getTime()) <= 0) {
                     scope.event.end.setHours(scope.event.start.getHours(), scope.event.start.getMinutes());
                 }
             }, true);
 
             var stepPx = scope.cellHeight * 2 * scope.calendar.editStep;
+            console.log("hey");
             $timeout(setupEventChange, 0);
             function setupEventChange() {
                 
