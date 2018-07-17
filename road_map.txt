@@ -6,4 +6,13 @@ This is a project guideline road map for the custom mav calendar and scheduling 
 	7-12-2018
 # planning and scaffolding --
 
-	
+	# step 1 -1 day- 
+		html scaffolding 
+	# step 2 -2 days- 
+		css scaffolding 
+	# step 3 -2 days- 
+		javascript scaffolding 
+	# step 4 --
+		test look and feel of calendar to see if if looks okay
+	# step 5 --
+		integrate server side code and backend database into the calender to store events 
