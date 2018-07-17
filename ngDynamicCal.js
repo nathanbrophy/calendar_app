@@ -533,9 +533,11 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
                 elem.css("width", scope.eventWidth);
                 elem.css("left", scope.eventLeft);
             }
+            //When the times of an event change, we need to update the size of the cell to reflect that 
             scope.$watch("[startTime, endTime]", function (newVal, oldVal, scope) {
                 setDimentions();
             });
+            //Here we specify to watch with angular equality instead of reference equality
             scope.$watch("[event.start, event.end, eventWidth, eventLeft]", function (newVal, oldVal, scope) {
                 setDimentions();
                 if (!calEventHandler.isChanging) {
@@ -552,26 +554,19 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
                     scope.event.end.setHours(scope.event.start.getHours(), scope.event.start.getMinutes());
                 }
             }, true);
-
             var stepPx = scope.cellHeight * 2 * scope.calendar.editStep;
             $timeout(setupEventChange, 0);
-            function setupEventChange() {
-                
+            function setupEventChange() {               
                 var parent = elem;
-                while (parent[0].tagName != "CAL-CALENDAR") {
+                //let's loop through the DOM to find the element we need!
+                while (parent[0].tagName != "CAL-CALENDAR" && parent.length != 0) {
                     parent = parent.parent();
-                    if (parent.length == 0) break;
                 }
-
-                var dayElements = parent.find('cal-day')
-                //var dayElements = parent;
-                //if (parent.length == 0) dayElements = parent.find('cal-day')
-
+                var dayElements    = parent.find('cal-day');
                 var startStartTime = new Date(scope.event.start);
-                var startEndTime = new Date(scope.event.end);
+                var startEndTime   = new Date(scope.event.end);
 
-                var clickStart, topStart, topEnd, clickEnd;
-                var originParent;
+                var clickStart, topStart, topEnd, clickEnd, originParent;
 
                 elem.on('click', function () {
                     if(!scope.event.edit) {
@@ -585,18 +580,14 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
                     if (scope.event.edit && scope.calendar.type != "list") {
                         calEventHandler.start(scope.event, elem);
                         startStartTime = new Date(scope.event.start);
-                        startEndTime = new Date(scope.event.end);
+                        startEndTime   = new Date(scope.event.end);
 
                         calEventHandler.isChanging = true;
-
                         originParent = findParentDay(elem);
-
-
                         e.preventDefault();
 
-
                         clickStart = e.pageY - elem.parent()[0].offsetTop;
-                        topStart = elem[0].offsetTop;// - elem.parent()[0].offsetTop;
+                        topStart = elem[0].offsetTop;
 
                         dayElements.on("mouseenter", mouseenter);
                         $document.on('mousemove', mousemove);
