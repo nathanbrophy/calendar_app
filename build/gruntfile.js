@@ -19,14 +19,14 @@ module.exports = function(grunt){
 		concat:   {
 		  app:    {
 			//src:  [ '../src/directives/**.js', '../src/services/**.js', '../src/filters/**.js', '<%= ngtemplates.app.dest %>' ],
-			src:  [ '../src/directives/**.js', '../src/services/**.js', '../src/filters/**.js', '../templates/**.js','<%= ngtemplates.app.dest %>' ],
-			dest: '../dist/ngDynamicCal.js'
+			src:  [ '../src/directives/**.js', '../src/services/**.js', '../src/filters/**.js', '../src/templates/**.js','<%= ngtemplates.app.dest %>' ],
+			dest: '../dist/js/ngDynamicCal.js'
 		  }
 		},
 		copy: {
 		  main: {
 			src: '../src/main.css',
-			dest: '../dist/ngDynamicCal.css'
+			dest: '../dist/css/ngDynamicCal.css'
 		  }
 		},
 		cssmin: {
@@ -36,7 +36,7 @@ module.exports = function(grunt){
 		  },
 		  target: {
 			files: {
-			  '../dist/ngDynamicCal.min.css': ['../dist/ngDynamicCal.css']
+			  '../dist/css/ngDynamicCal.min.css': ['../dist/css/ngDynamicCal.css']
 			}
 		  }
 		},
@@ -44,17 +44,30 @@ module.exports = function(grunt){
 		uglify: {
 		  my_target: {
 		    files: {
-			  '../dist/ngDynamicCal.min.js': ['../dist/ngDynamicCal.js']
+			  '../dist/js/ngDynamicCal.min.js': ['../dist/js/ngDynamicCal.js']
 		    }
 		  }
-	    }
+	    },
+	    usebanner: {
+			taskName: {
+			  options: {
+				position: 'top',
+				banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %> */\n',
+				linebreak: false
+			  },
+			  files: {
+				src: ['../dist/css/ngDynamicCal.min.css', '../dist/js/ngDynamicCal.min.js']
+			  }
+			}
+		  },
 	});
 	grunt.loadNpmTasks('grunt-angular-templates');
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-contrib-cssmin');
-	grunt.registerTask("default", ["ngtemplates", "concat", "copy", "cssmin", "uglify"]);
+	grunt.loadNpmTasks('grunt-banner');
+	grunt.registerTask("default", ["ngtemplates", "concat", "copy", "cssmin", "uglify", 'usebanner']);
 	
 	
 	

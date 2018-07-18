@@ -238,7 +238,6 @@ dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', 
         if (numberOfWeeks == this.startDate.getMonth()) {
             window.lastWeeks = window.weeks;
             window.weeks = JSON.stringify(calendarMonth);
-            console.log("=====", calendarMonth);//startDate, endDate);
         }
 
         $scope.updateEvents(); //update the shown events in the calendar view
@@ -547,7 +546,7 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
             function setupEventChange() {               
                 var parent = elem;
                 //let's loop through the DOM to find the element we need!
-                while (parent[0].tagName != "CAL-CALENDAR" && parent.length != 0) {
+                while (parent.length != 0 && parent[0].tagName != "CAL-CALENDAR") {
                     parent = parent.parent();
                 }
                 var dayElements    = parent.find('cal-day');

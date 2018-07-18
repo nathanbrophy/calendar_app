@@ -266,7 +266,6 @@ dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', 
     });
     $scope.view.load(); //fire off the load event if there isn't a change in one of the fields i.e. initial view
 }]);
-
 dynamicCal.directive('calDay', ['$document', 'calEventHandler', function ($document, calEventHandler) {
     return {
         restrict: 'E',
@@ -460,7 +459,6 @@ dynamicCal.controller("calDayCtrl", ["$scope", function ($scope) {
         $scope.day.sort();
     }
 }]); //end cal day conroller
-
 dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandler', '$timeout', function ($document, $templateCache, calEventHandler, $timeout) {
     /**
      * @param {Event} event is the event that we are currently inspecting
@@ -547,7 +545,7 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
             function setupEventChange() {               
                 var parent = elem;
                 //let's loop through the DOM to find the element we need!
-                while (parent[0].tagName != "CAL-CALENDAR" && parent.length != 0) {
+                while (parent.length != 0 && parent[0].tagName != "CAL-CALENDAR") {
                     parent = parent.parent();
                 }
                 var dayElements    = parent.find('cal-day');
@@ -582,7 +580,6 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
                         $document.on('mouseup', mouseup);
                     }
                 });
-
                 /**
                  * @param {DOMelem} elem is a DOM element that we use the angular element attribute to find the parent calendar day element 
                  * @retursn {DOMelememt} the parent element that is a calendar day of an element 
@@ -750,11 +747,10 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
         }
     }
 }]); //end calEvent directive 
-
 dynamicCal.directive('calHeader', ['$templateCache', function ($templateCache) {
     return {
         restrict: 'E',
-        template: "<ng-include src='templateUrl'/> ",  //
+        template: "<ng-include src='templateUrl'/> ",  
         require: ['^calCalendar'],
         scope: {
             calendar: '=config'
@@ -909,7 +905,6 @@ dynamicCal.directive('calDurrationBtn', function () {
         }
     }
 }); //end cal durration button directive
-
 dynamicCal.directive('calWeek', function ($document, calEventHandler, $timeout) {
     return {
         restrict: 'E',
@@ -943,7 +938,6 @@ dynamicCal.controller('calWeekCtrl', ["$scope", function ($scope) {
         $scope.end = $scope.start + dif;
     }
 }]); //end calendar week controler
-
 dynamicCal.factory('calDayObject', function () {
 
     /**
@@ -1131,7 +1125,6 @@ dynamicCal.factory('calDayObject', function () {
 
     return Day;
 }); //end cal day object factory
-
 dynamicCal.factory('calEventHandler', ['$rootScope', function ($rootScope) {
     return {
         event: null,
@@ -1165,7 +1158,6 @@ dynamicCal.factory('calEventHandler', ['$rootScope', function ($rootScope) {
         }
     }
 }]); //end cal event handler factory 
-
 dynamicCal.filter('numberOfWeeks', function () {
     /**
      * @param {Array} set is a set of items
@@ -1182,7 +1174,6 @@ dynamicCal.filter('numberOfWeeks', function () {
         return array;        
     };
 }); //end number of weeks filter
-
 dynamicCal.filter('range', function () {
     return function (input, startArgv, endArgv, stepArgv) {
         var start = startArgv;
@@ -1198,7 +1189,6 @@ dynamicCal.filter('range', function () {
         return input;
     };
 }); //end range filter 
-
 angular.module('dynamicCal').run(['$templateCache', function($templateCache) {
   'use strict';
 

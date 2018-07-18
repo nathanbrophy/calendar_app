@@ -20,7 +20,6 @@ cal-calendar{
 }
 .cal-calendar.month .cal-day, .cal-calendar.week .cal-day{
     width:calc(100% / 7);
-    /*display:inline-block;*/
 }
 
 .cal-calendar .cal-day {
@@ -41,8 +40,6 @@ cal-calendar{
     color:white;
     padding:0 2px 0 0px;
     background-color: rgba(0,0,0,0);
-    /*overflow:hidden;
-    border-bottom: rgb(51, 102, 204) solid 1px;*/
 
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -81,10 +78,6 @@ cal-calendar{
 /* Opera < 12.1 */
 @-o-keyframes fadein { from { opacity: 0; } to   { opacity: 1; } }
 
-/*.cal-calendar .cal-day .cal-container .cal-event .cal-event-container{
-    height:100%;
-    background-color: rgb(45, 95, 167);
-}*/
 .cal-calendar .cal-day .cal-container .cal-event .cal-event-wrapper{
     border: rgb(90, 90, 90) 1px solid;
     height:100%;
@@ -92,8 +85,6 @@ cal-calendar{
     background-color: rgb(45, 95, 167);
 }
 .cal-calendar .cal-day .cal-container .cal-event .cal-event-head {
-    /*background-color: rgb(45, 95, 167);
-    border:rgb(51, 102, 204) solid 1px;*/
     font-size: 12px;
     white-space: nowrap;
 }
@@ -107,16 +98,9 @@ cal-calendar{
     position:absolute;
 }
 .cal-calendar .cal-day .cal-container .cal-event .cal-event-body {
-    /*background-color: rgb(107, 142, 193);
-    border:rgb(51, 102, 204) solid 1px;*/
     height:100%;
     position:relative;
 }
-
-
-
-
-
 
 .cal-calendar .cal-day .cal-container .cal-event .cal-resize{
     height: 4px;
@@ -159,16 +143,16 @@ cal-calendar .cal-overlay{
     border-top-style: dotted;
 }
 
-/* Day Header
-  ---------------------------------*/
+/* 
+    Day Header
+    ---------------------------------
+*/
 
 .listView.month .cal-day-header span.month {
     display:none;
     text-align: right;
 }
-/*cal-day .cal-day-header {
-    text-align: center;    
-}*/
+
 .cal-placeholder .cal-day-header span{
     display:none;
 }
@@ -204,7 +188,7 @@ cal-calendar .cal-overlay{
 
 .cal-calendar .cal-day .cal-container{
     position:relative;
-    overflow:visible;
+    overflow:hidden;
     background-color:inherit;
 }
 .cal-calendar .cal-day .cal-container .cal-event{
@@ -223,25 +207,14 @@ cal-calendar .cal-overlay{
     background-color: #eee;
 }
 
-
 cal-day.cal-today {
     background-color: #FFFEEA;
 }
 
-/*.cal-placeholder cal-day.cal-placeholder, 
-.cal-day.cal-placeholder, 
-.cal-day-placeholder cal-day.cal-past*/
 .cal-day.cal-placeholder .cal-day-header
 {
     background-color: #fff;
 }
-
-/*cal-day.cal-placeholder {
-    background-color: #FFFEEA;
-}*/
-
-
-
 
 /*====== List View vs. Schedule View=======*/
 .cal-calendar.scheduleView td:first-child {
@@ -305,9 +278,6 @@ cal-calendar .cal-down {
 	border-top: 9px solid
 }
 
-
-
-
 /* moving elements */
 .cal-calendar .cal-day .cal-event.cal-dragging {
     width: 100% !important;
@@ -318,12 +288,8 @@ cal-calendar .cal-down {
     box-shadow: grey 1px 3px 6px;
 }
 
-
 /* ======= color side bar and dates =========*/
-/*.cal-timelabel, .cal-day-header{
-    color:white;
-    background-color:rgb(103,162,207);
-}*/
+
 .cal-timelabel .cal-hourMark, .cal-timelabel .cal-halfHourMark{
     text-align:right;
     padding-right:3px;
@@ -336,28 +302,16 @@ cal-calendar .cal-down {
     bottom: -6px;
     white-space:nowrap;
 }
-/*.cal-timelabel .cal-day-header{
-    padding:0;
-}*/
 
+/* 
+    Scroll
+    --------------------------------------------------
+*/
 
-
-/* Scroll
-  --------------------------------------------------*/
-/*.cal-calendar table{
-    margin-top:0px;
-}
-.cal-calendar .cal-scroll-placeholder{
-    width: 24px;
-}
-
-.cal-calendar .cal-week-body{
-    height:600px;
-    overflow-y:scroll;
-}*/
-
-/* Loading Icon
-  --------------------------------------------------*/
+/* 
+    Loading Icon
+    --------------------------------------------------
+*/
 .cal-calendar-loading {  
   vertical-align: top;
   display: inline-block;
@@ -436,8 +390,10 @@ cal-calendar .cal-down {
 
 
 
-/* Header
-  -----------------------------------*/
+/* 
+    Header
+    -----------------------------------
+*/
 .cal-header button {
     background-color: #3D6BAE;
     border-radius: 0;
@@ -464,110 +420,12 @@ cal-calendar .cal-down {
     float:right;
 }
 
-/*The following is used when the shcedule width becomes small the date headers will wrap and overflow into the content below it*/
- @media (max-width:600px){
-     .cal-calendar .cal-day-header{
-         z-index: 1;
-         height:50px;
-     }
- }
 
 
-/* Event Groups
-  --------------------------------------------------*/
-/*.cal-calendar .cal-day .cal-container .cal-event {
-    background-color: white;
-}
-.cal-calendar .cal-day .cal-container .cal-event.cal-group-0 .cal-event-head {
-    background-color: rgb(45, 95, 167);
-    border:rgb(45, 95, 167) solid 1px;
-}
-.cal-calendar .cal-day .cal-container .cal-event.cal-group-0 .cal-event-body {
-    background-color: rgba(45, 95, 167, .8);
-    border: rgb(45, 95, 167) solid 1px;
-}
-
-.cal-calendar .cal-day .cal-container .cal-event.cal-group-1 .cal-event-head {
-    background-color: rgb(42, 190, 87);
-    border:rgb(42, 190, 87) solid 1px;
-}
-.cal-calendar .cal-day .cal-container .cal-event.cal-group-1 .cal-event-body {
-    background-color: rgba(42, 190, 87, .8);
-    border: rgb(42, 190, 87) solid 1px;
-}
-
-.cal-calendar .cal-day .cal-container .cal-event.cal-group-2 .cal-event-head {
-    background-color: rgb(180, 84, 39);
-    border:rgb(180, 84, 39) solid 1px;
-}
-.cal-calendar .cal-day .cal-container .cal-event.cal-group-2 .cal-event-body {
-    background-color: rgba(180, 84, 39, .8);
-    border: rgb(180, 84, 39) solid 1px;
-}
-
-.cal-calendar .cal-day .cal-container .cal-event.cal-group-3 .cal-event-head {
-    background-color: rgb(180, 169, 37);
-    border:rgb(180, 169, 37) solid 1px;
-}
-.cal-calendar .cal-day .cal-container .cal-event.cal-group-3 .cal-event-body {
-    background-color: rgba(180, 169, 37, .8);
-    border: rgb(180, 169, 37) solid 1px;
-}
-
-.cal-calendar .cal-day .cal-container .cal-event.cal-group-4 .cal-event-head {
-    background-color: rgb(168, 42, 190);
-    border:rgb(168, 42, 190) solid 1px;
-}
-.cal-calendar .cal-day .cal-container .cal-event.cal-group-4 .cal-event-body {
-    background-color: rgba(168, 42, 190, .8);
-    border: rgb(168, 42, 190) solid 1px;
-}
-
-.cal-calendar .cal-day .cal-container .cal-event.cal-group-5 .cal-event-head {
-    background-color: rgb(167, 46, 41);
-    border:rgb(167, 46, 41) solid 1px;
-}
-.cal-calendar .cal-day .cal-container .cal-event.cal-group-5 .cal-event-body {
-    background-color: rgba(167, 46, 41, .8);
-    border: rgb(167, 46, 41) solid 1px;
-}
-
-.cal-calendar .cal-day .cal-container .cal-event.cal-group-6 .cal-event-head {
-    background-color: rgb(80, 180, 45);
-    border:rgb(80, 180, 45) solid 1px;
-}
-.cal-calendar .cal-day .cal-container .cal-event.cal-group-6 .cal-event-body {
-    background-color: rgba(80, 180, 45, .8);
-    border: rgb(80, 180, 45) solid 1px;
-}
-
-.cal-calendar .cal-day .cal-container .cal-event.cal-group-7 .cal-event-head {
-    background-color: rgb(103, 74, 190);
-    border:rgb(103, 74, 190) solid 1px;
-}
-.cal-calendar .cal-day .cal-container .cal-event.cal-group-7 .cal-event-body {
-    background-color: rgba(103, 74, 190, .8);
-    border: rgb(103, 74, 190) solid 1px;
-}
-
-.cal-calendar .cal-day .cal-container .cal-event.cal-group-8 .cal-event-head {
-    background-color: rgb(190, 145, 37);
-    border:rgb(190, 145, 37) solid 1px;
-}
-.cal-calendar .cal-day .cal-container .cal-event.cal-group-8 .cal-event-body {
-    background-color: rgba(190, 145, 37, .8);
-    border: rgb(190, 145, 37) solid 1px;
-}
-
-.cal-calendar .cal-day .cal-container .cal-event.cal-group-9 .cal-event-head {
-    background-color: rgb(35, 180, 168);
-    border:rgb(35, 180, 168) solid 1px;
-}
-.cal-calendar .cal-day .cal-container .cal-event.cal-group-9 .cal-event-body {
-    background-color: rgba(35, 180, 168, .8);
-    border: rgb(35, 180, 168) solid 1px;
-}*/
-
+/* 
+    Event Groups
+    --------------------------------------------------
+*/
 
 .cal-calendar .cal-day .cal-container .cal-event.cal-group-0 .cal-event-wrapper {
     background-color: rgb(45, 95, 167);
@@ -602,5 +460,3 @@ cal-calendar .cal-down {
 .cal-calendar .cal-day .cal-container .cal-event.cal-group-10 .cal-event-wrapper {
     background-color: rgb(45, 95, 167);
 }
-
-
