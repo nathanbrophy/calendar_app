@@ -48,7 +48,9 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
                 scope.templateUrl = tempUrl;
             }
             elem.addClass("cal-event");
-            if (scope.event.group != undefined) elem.addClass("cal-group-" + (scope.event.group % 20));
+            if (scope.event.group != undefined) {
+                elem.addClass("cal-group-" + (scope.event.group % 20));
+            }
             var startY = 0, y = 0;
             function setDimentions() {
                 y = getTop(scope.event, scope.cellHeight, scope.startTime); // elem, { viewStart: scope.startTime, viewEnd: scope.endTime }); //scope.calendar);
@@ -83,7 +85,7 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
             $timeout(setupEventChange, 0);
             function setupEventChange() {               
                 var parent = elem;
-                //let's loop through the DOM to find the element we need!
+                //let's loop through the DOM to find the element we need! Length check comes first so we avoid a null reference error
                 while (parent.length != 0 && parent[0].tagName != "CAL-CALENDAR") {
                     parent = parent.parent();
                 }
@@ -98,7 +100,7 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
                         if (!isChanged() && scope.onEventClick != undefined && scope.onEventClick.constructor == Function)
                             scope.onEventClick(scope.event);
                     }
-                })
+                });
 
                 elem.on('mousedown', function (e) {
                     closeTip(); // close hover tip
@@ -112,7 +114,7 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
                         e.preventDefault();
 
                         clickStart = e.pageY - elem.parent()[0].offsetTop;
-                        topStart = elem[0].offsetTop;
+                        topStart   = elem[0].offsetTop;
 
                         dayElements.on("mouseenter", mouseenter);
                         $document.on('mousemove', mousemove);
@@ -121,7 +123,8 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
                 });
                 /**
                  * @param {DOMelem} elem is a DOM element that we use the angular element attribute to find the parent calendar day element 
-                 * @retursn {DOMelememt} the parent element that is a calendar day of an element 
+                 * @returns {DOMelem} the parent element that is a calendar day of an element 
+                 * Since these events are coming in from our clicks, we need to bubble up through the DOM to find the parent element to see any noticeable changes we make
                  */
                 function findParentDay(elem) {
                     var count = 0;
@@ -151,6 +154,9 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
                     calEventHandler.isChanging = false;
                 }
                 /**
+                 * @param b is now deprecated, but kept for cross platform support
+                 * @param c is now deprecated, but kept for cross platform support
+                 * @param d is now deprecated, but kept for cross platform support
                  * This function handles when we are dragging an event to a new time and we move it left or right to change the date of the event.
                  */
                 function mouseenter(e, b, c, d) {

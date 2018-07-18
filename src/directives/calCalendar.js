@@ -22,15 +22,17 @@ dynamicCal.directive('calCalendar', ['$document', 'calEventHandler', 'calDayObje
         templateUrl: 'calCalendar.html', //App/Shared/mavCalendar/calCalendar.html',
         link: function (scope, elem, attrs, controller) {}
     }
-}]);
+}]); //end cal calendar directive 
 
 //Set up and register the controller 
 dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', function ($scope, $timeout, calDayObject) {
-    if ($scope.config == null) $scope.config = {};
+    if ($scope.config == null) {
+        $scope.config = {};
+    }
     this.calendar = $scope.config;
     this.onEventChange = $scope.onEventChange;
     /**
-     * @param event is the event object coming in from the calendar (most likely a person's schedule time)
+     * @param {Event} event is the event object coming in from the calendar (most likely a person's schedule time information)
      * If there is a date change when someone edits their schedule, then here we update the events in the scope to reflect
      * the new changes.  
      */
@@ -54,7 +56,7 @@ dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', 
         $scope.updateEvents();
     }, true);
     /**
-     * @param obj is the event's date to be checked
+     * @param {Object} obj is the event's date to be checked
      * @returns {Boolean} true or false depending on whether or not the objects constructor is a Date or not.
      */
     $scope.isDate = function (obj) {
@@ -86,7 +88,6 @@ dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', 
             var start_time_difference = event.start.getTime() - other.start.getTime();
             return (start_time_difference != 0) ? start_time_difference : event.end.getTime() - other.end.getTime();
         };
-
         if ($scope.events != undefined) {
             var eventCopy = $scope.events.slice();
             eventCopy.sort(event_sorter);
@@ -158,6 +159,7 @@ dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', 
     };
     /**
      * @param {Date} date is the date object coming in that we wish to change the calendar view to 
+     * @see this.load
      */
     config.changeDate = function (date) { 
         this.date = new Date(date); //make a copy of the incoming date object to store in our object date field
@@ -165,17 +167,18 @@ dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', 
     };
     /**
      * @param {number} multiplier is essentially the step forward that we want to move 
+     * @see this.load()
      */
     config.moveView = function (multilpier) {
         switch (this.durration) {
             case "month":
                 this.date.setDate(1); //changing the month so change the current day to th 1st 
                 //we use 1 * multiplier here to take advantage of JS implicit type conversions (in case the multiplier comes in as a string from a json object)
-                this.date.setMonth(this.date.getMonth() + (1 * multilpier)); 
+                this.date.setMonth(this.date.getMonth() +  multilpier); 
                 break;
             case "day":
                 //we use 1 * multiplier here to take advantage of JS implicit type conversions (in case the multiplier comes in as a string from a json object)
-                this.date.setDate(this.date.getDate() + (1 * multilpier));
+                this.date.setDate(this.date.getDate() +  multilpier);
                 break;
             default: //"week"
                 //The default is week, so we advance or backtrack the calendar by 7 days
@@ -187,7 +190,9 @@ dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', 
      * @param {String} durration is an optional parameter that can be used to change the current duration of the calendar before we load new content in
      */
     config.load = function (durration) {
-        if (durration != undefined) this.durration = durration;
+        if (durration != undefined) {
+            this.durration = durration;
+        }
         this.days = [];
         this.date.setHours(0, 0, 0, 0);
         var startDate = new Date(this.date);
@@ -215,17 +220,17 @@ dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', 
         this.endDate   = endDate;
 
         var beginning = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() - startDate.getDay());
-        var end = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate() + (6 - endDate.getDay()));
+        var end       = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate() + (6 - endDate.getDay()));
         //get the number of fractional weeks in the current month and then round up
         var numberOfWeeks = Math.ceil((((end.getTime() - beginning.getTime()) / 1000 / 60 / 60 / 24)) / 7);
 
         if (numberOfWeeks == 1) { //this means we are in week view 
             beginning = new Date(startDate);
-            end = new Date(endDate);
+            end       = new Date(endDate);
         }
 
         var calendarMonth = new Array(numberOfWeeks);   //this is our month, it's an array of all of the weeks in that month
-        var cur = new Date(beginning);                  //this is the begining of the current calendar view
+        var cur           = new Date(beginning);        //this is the begining of the current calendar view
         for (var i = 0; i < numberOfWeeks; i++) {       //loop through the number of weeks in the month
             calendarMonth[i] = new Array();             //create a new array of days to be stored in our weeks
             for (var j = 0; j < 7 && cur <= end; j++) { //loop through the number of days in a week or until end of month
@@ -238,7 +243,6 @@ dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', 
         if (numberOfWeeks == this.startDate.getMonth()) {
             window.lastWeeks = window.weeks;
             window.weeks = JSON.stringify(calendarMonth);
-            console.log("=====", calendarMonth);//startDate, endDate);
         }
 
         $scope.updateEvents(); //update the shown events in the calendar view
@@ -265,4 +269,4 @@ dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', 
         scope.view.load(scope.view.durration);
     });
     $scope.view.load(); //fire off the load event if there isn't a change in one of the fields i.e. initial view
-}]);
+}]); //end cal calendar controller 

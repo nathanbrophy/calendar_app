@@ -16,19 +16,24 @@ dynamicCal.directive('calDay', ['$document', 'calEventHandler', function ($docum
         link: function (scope, elem, attrs, controller) {
             var today = new Date(); 
             today.setHours(0, 0, 0, 0);
-            if (scope.day.date < today) elem.addClass("cal-past");
-            if (scope.day.date.getTime() == today.getTime()) elem.addClass("cal-today");
-
-            scope.cellHeight = scope.calendar.cellHeight;
+            if (scope.day.date < today) {
+                elem.addClass("cal-past");
+            }
+            if (scope.day.date.getTime() == today.getTime()) {
+                elem.addClass("cal-today");
+            }
+            scope.cellHeight     = scope.calendar.cellHeight;
             scope.fullDaysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-            scope.daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+            scope.daysOfWeek     = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
             /**
              * @returns {Array} the array representing the overlay object in DOM standards, or empty if no matching elements
              */
             function getOverlay() {
                 var allLabels = elem.find('label');
                 for (var i = 0 ; i < allLabels.length; i++) {
-                    if(angular.element(allLabels[i]).hasClass("cal-overlay")) return angular.element(allLabels[i]);
+                    if(angular.element(allLabels[i]).hasClass("cal-overlay")) {
+                        return angular.element(allLabels[i]);
+                    }
                 }
                 var allDivs = elem.find('div');
                 for (var i = 0 ; i < allDivs.length; i++) {
@@ -40,9 +45,6 @@ dynamicCal.directive('calDay', ['$document', 'calEventHandler', function ($docum
                 }
                 return [];
             }
-            /** 
-             * The following mouse events are used to control what happens when a calendar dat object is clicked and dragged to a new time.
-             */
             var startY, startTop, startBottom, overlay;
             /**
              * If there is no overlay currently, then we get the overlay to avoid a null error.
@@ -95,7 +97,7 @@ dynamicCal.directive('calDay', ['$document', 'calEventHandler', function ($docum
                         overlay = getOverlay();
                         overlay.css('top', e.target.offsetTop + "px").css('height', e.target.offsetHeight + "px");
 
-                        // Set up events
+                        // Register mouse events
                         elem.on('mouseup', mouseup);
                         elem.on('mousemove', mousemove);
                         elem.on('mouseout', mouseout);
@@ -117,11 +119,11 @@ dynamicCal.directive('calDay', ['$document', 'calEventHandler', function ($docum
                 var overlayHeight, overlayTop;
                 if (e.pageY >= startPageTop) {
                     overlayHeight = Math.ceil((e.pageY - startPageTop) / scope.cellHeight) * scope.cellHeight;
-                    overlayTop = startTop;
+                    overlayTop    = startTop;
                 }
                 else {
                     overlayHeight = Math.ceil((startPageBottom - e.pageY) / cellHeight) * cellHeight;
-                    overlayTop = startBottom - overlayHeight;
+                    overlayTop    = startBottom - overlayHeight;
                 }
                 overlay.css('top', overlayTop + "px").css('height', overlayHeight + "px");
             }
@@ -131,7 +133,7 @@ dynamicCal.directive('calDay', ['$document', 'calEventHandler', function ($docum
              */ 
             function mouseup(e) {
                 var start = (overlay[0].offsetTop / cellHeight / 2) + 5;
-                var end = start + (overlay[0].offsetHeight / cellHeight / 2);
+                var end   = start + (overlay[0].offsetHeight / cellHeight / 2);
                 var startDate = new Date(scope.date); //create a deep copy of the start date
                 startDate.setHours(0, 0, 0, 0);
                 /*
@@ -150,6 +152,7 @@ dynamicCal.directive('calDay', ['$document', 'calEventHandler', function ($docum
                     scope.onTimeSelect(startDate, endDate);
                 }
 
+                // Register event hanlders 
                 elem.off('mouseup', mouseup);
                 elem.off('mousemove', mousemove);
                 elem.off('mouseout', mouseout);
