@@ -1,0 +1,540 @@
+﻿
+.cal-calendar {
+    width:100%;
+    margin-top:20px;
+}
+/*.cal-calendar table {
+    width:100%;
+}*/
+.cal-calendar table{
+    margin-top: 0;
+    width:100%;
+}
+.cal-calendar table td{
+    vertical-align:top;
+}
+.cal-calendar.month .cal-day, .cal-calendar.week .cal-day{
+    width:calc(100% / 7);
+    /*display:inline-block;*/
+}
+
+.cal-calendar .cal-day {
+    height: 100%;
+}
+
+.cal-calendar.month .cal-day, .cal-calendar.week .cal-day,
+.cal-calendar .cal-day .cal-container .cal-event {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.cal-calendar .cal-day .cal-container .cal-event {
+    color:white;
+    padding:0 2px 0 0px;
+    background-color: rgba(0,0,0,0);
+    /*overflow:hidden;
+    border-bottom: rgb(51, 102, 204) solid 1px;*/
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+/*.cal-calendar .cal-day .cal-container .cal-event .cal-event-container{
+    height:100%;
+    background-color: rgb(45, 95, 167);
+}*/
+.cal-calendar .cal-day .cal-container .cal-event .cal-event-wrapper{
+    border: rgb(90, 90, 90) 1px solid;
+    height:100%;
+    overflow: hidden;
+    background-color: rgb(45, 95, 167);
+}
+.cal-calendar .cal-day .cal-container .cal-event .cal-event-head {
+    /*background-color: rgb(45, 95, 167);
+    border:rgb(51, 102, 204) solid 1px;*/
+    font-size: 12px;
+    white-space: nowrap;
+}
+.cal-calendar .cal-day .cal-container .cal-event .cal-event-body::before{
+    content:"";
+    display:block;
+    width: 100%;
+    height:100%;
+    background-color:white;
+    opacity:.22;
+    position:absolute;
+}
+.cal-calendar .cal-day .cal-container .cal-event .cal-event-body {
+    /*background-color: rgb(107, 142, 193);
+    border:rgb(51, 102, 204) solid 1px;*/
+    height:100%;
+    position:relative;
+}
+
+
+
+
+
+
+.cal-calendar .cal-day .cal-container .cal-event .cal-resize{
+    height: 4px;
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+    cursor: s-resize;
+    text-align: center;
+    font-size: 10px;
+    line-height: 4px;
+    margin: 0;
+    padding: 0;
+}
+.cal-calendar .cal-day .cal-container .cal-event .cal-resize:before{
+    content: '=';
+}
+.cal-calendar.listView .cal-day .cal-container .cal-event .cal-resize{
+    display:none;
+}
+
+.cal-calendar .cal-hourMark, .cal-calendar .cal-halfHourMark {
+    /*height: 20px;*/
+    border-top-color: #D4D4D4;
+    border-top-width: 1px;
+    border-right: solid 1px #D4D4D4;
+}
+.cal-calendar .cal-hourMark {
+    border-top-style: solid;
+}
+.cal-calendar .cal-hourMark.selected, .cal-calendar .cal-halfHourMark.selected {
+    background-color:lightblue;
+}
+cal-calendar .cal-overlay{
+    background-color:lightblue;
+    width:100%;
+    position:absolute;
+    opacity: .4;
+}
+.cal-calendar .cal-halfHourMark {
+    border-top-style: dotted;
+}
+
+/* Day Header
+  ---------------------------------*/
+
+.listView.month .cal-day-header span.month {
+    display:none;
+    text-align: right;
+}
+/*cal-day .cal-day-header {
+    text-align: center;    
+}*/
+.cal-placeholder .cal-day-header span{
+    display:none;
+}
+.cal-calendar .cal-day-header {
+    height: 40px;
+    line-height: 20px;
+    text-align: center;
+    /*border-right: solid 1px #D4D4D4;*/
+    padding:10px 0;
+    position: relative;
+    background-color:white;
+}
+.cal-calendar.scheduleView .cal-day-header:after {
+    content: '';
+    border-right: solid 1px #D4D4D4;
+    height:20px;
+    position: absolute;
+    bottom: 0;
+    right: 0px;
+}
+
+.cal-calendar.listView .cal-day-header{
+    border-right:none;
+}
+
+.cal-calendar .cal-day{
+    border-bottom: solid 1px #D4D4D4;
+}
+
+.cal-calendar tr:not(:first-child) {
+    border-top: solid 1px rgb(166, 201, 226);
+}
+
+.cal-calendar .cal-day .cal-container{
+    position:relative;
+    height: calc(100% - 20px);
+    overflow:hidden;
+    background-color:inherit;
+}
+.cal-calendar .cal-day .cal-container .cal-event{
+    position: absolute;
+}
+
+.cal-calendar .cal-timelabel {
+    display:none;
+}
+.cal-calendar cal-day{
+    display: inline-block;
+    height: 100%;
+    width: 100%;
+}
+.cal-day.cal-placeholder, cal-day.cal-past {
+    background-color: #eee;
+}
+
+
+cal-day.cal-today {
+    background-color: #FFFEEA;
+}
+
+/*.cal-placeholder cal-day.cal-placeholder, 
+.cal-day.cal-placeholder, 
+.cal-day-placeholder cal-day.cal-past*/
+.cal-day.cal-placeholder .cal-day-header
+{
+    background-color: #fff;
+}
+
+/*cal-day.cal-placeholder {
+    background-color: #FFFEEA;
+}*/
+
+
+
+
+/*====== List View vs. Schedule View=======*/
+.cal-calendar.scheduleView td:first-child {
+    width: 42px;
+}
+.cal-calendar.scheduleView .cal-timelabel{
+    display: block;
+    width:42px;
+}
+.cal-calendar.scheduleView.month .cal-day, .cal-calendar.scheduleView.week .cal-day {
+    width: calc(100% / 7);
+}
+
+
+.cal-calendar.listView .cal-day .cal-calendar-grid{
+    display:none;
+}
+.cal-calendar.listView .cal-day .cal-container{
+    height:auto;
+}
+.cal-calendar.listView .cal-day .cal-event {
+    position:static;
+    width:100% !important;
+    padding:0px;
+}
+.cal-calendar.listView cal-day .cal-container{
+    min-height:100px;
+}
+.cal-calendar.listView .cal-day {
+    border-right: solid 1px #D4D4D4;
+}
+.cal-calendar.listView .cal-day:nth-child(2){
+    border-left: solid 1px #D4D4D4;
+}
+.cal-calendar.listView .cal-day .cal-container .cal-event .cal-event-wrapper{
+    border:none;
+    border-top: 1px solid white;
+}
+
+
+/* Up/Down Arrows
+   -------------------------------*/
+
+cal-calendar .cal-up, cal-calendar .cal-down {
+	width: 0; 
+	height: 0; 
+    border-color: white;
+	border-left: 5px solid transparent;
+	border-right: 5px solid transparent;
+    display:inline-block;
+    cursor: pointer;
+}
+cal-calendar .cal-up:hover, cal-calendar .cal-down:hover{
+    border-top-color:lightgrey;
+    border-bottom-color:lightgrey;
+}
+cal-calendar .cal-up {
+	border-bottom: 9px solid;
+}
+
+cal-calendar .cal-down {
+	border-top: 9px solid
+}
+
+
+
+
+/* moving elements */
+.cal-calendar .cal-day .cal-event.cal-dragging {
+    width: 100% !important;
+    left: 0px !important;
+    z-index:2;
+}
+.cal-calendar .cal-day .cal-event.cal-dragging .cal-event-wrapper {
+    box-shadow: grey 1px 3px 6px;
+}
+
+
+/* ======= color side bar and dates =========*/
+/*.cal-timelabel, .cal-day-header{
+    color:white;
+    background-color:rgb(103,162,207);
+}*/
+.cal-timelabel .cal-hourMark, .cal-timelabel .cal-halfHourMark{
+    text-align:right;
+    padding-right:3px;
+    border-top:none;
+    /*position:relative;
+    bottom: -6px;*/
+}
+.cal-timelabel .cal-hourMark div, .cal-timelabel .cal-halfHourMark div{
+    position:relative;
+    bottom: -6px;
+}
+/*.cal-timelabel .cal-day-header{
+    padding:0;
+}*/
+
+
+
+/* Scroll
+  --------------------------------------------------*/
+/*.cal-calendar table{
+    margin-top:0px;
+}
+.cal-calendar .cal-scroll-placeholder{
+    width: 24px;
+}
+
+.cal-calendar .cal-week-body{
+    height:600px;
+    overflow-y:scroll;
+}*/
+
+/* Loading Icon
+  --------------------------------------------------*/
+.cal-calendar-loading {  
+  vertical-align: top;
+  display: inline-block;
+  color: rgba(255, 255, 255, 0);
+  /* margin: 6em auto; */
+  font-size: 10px;
+  position: relative;
+  text-indent: -9999em;
+  border-top: 5px solid rgba(4, 4, 4, 0.2);
+  border-right: 5px solid rgba(4, 4, 4, 0.2);
+  border-bottom: 5px solid rgba(4, 4, 4, 0.2);
+  border-left: 5px solid #aaa;
+  -webkit-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-animation: loadAnimation 1.1s infinite linear;
+  animation: loadAnimation 1.1s infinite linear;
+}
+.cal-calendar-loading,
+.cal-calendar-loading:after {
+  border-radius: 50%;
+  width: 33px;
+  height: 33px;
+}
+@-webkit-keyframes loadAnimation {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes loadAnimation {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+
+.cal-calendar .cal-day .cal-container .cal-event.cal-event-loading .cal-event-wrapper::after{
+    content: "";
+    /*background-color: pink;*/
+    display:inline-block;
+    height:18px;
+    width: 18px;
+    position:absolute;
+    top:0px;
+    right:0px;
+
+    border-radius: 50%;
+
+    vertical-align: top;
+    display: inline-block;
+    color: rgba(255, 255, 255, 0);
+
+    font-size: 10px;
+    text-indent: -9999em;
+    border-top: 3px solid rgba(255, 255, 255, 0.3);
+    border-right: 3px solid rgba(255, 255, 255, 0.3);
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+
+    border-left: 3px solid #ccc;
+    -webkit-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-animation: loadAnimation 1.1s infinite linear;
+    animation: loadAnimation 1.1s infinite linear;
+}
+
+
+
+
+
+
+
+/* Event Groups
+  --------------------------------------------------*/
+/*.cal-calendar .cal-day .cal-container .cal-event {
+    background-color: white;
+}
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-0 .cal-event-head {
+    background-color: rgb(45, 95, 167);
+    border:rgb(45, 95, 167) solid 1px;
+}
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-0 .cal-event-body {
+    background-color: rgba(45, 95, 167, .8);
+    border: rgb(45, 95, 167) solid 1px;
+}
+
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-1 .cal-event-head {
+    background-color: rgb(42, 190, 87);
+    border:rgb(42, 190, 87) solid 1px;
+}
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-1 .cal-event-body {
+    background-color: rgba(42, 190, 87, .8);
+    border: rgb(42, 190, 87) solid 1px;
+}
+
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-2 .cal-event-head {
+    background-color: rgb(180, 84, 39);
+    border:rgb(180, 84, 39) solid 1px;
+}
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-2 .cal-event-body {
+    background-color: rgba(180, 84, 39, .8);
+    border: rgb(180, 84, 39) solid 1px;
+}
+
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-3 .cal-event-head {
+    background-color: rgb(180, 169, 37);
+    border:rgb(180, 169, 37) solid 1px;
+}
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-3 .cal-event-body {
+    background-color: rgba(180, 169, 37, .8);
+    border: rgb(180, 169, 37) solid 1px;
+}
+
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-4 .cal-event-head {
+    background-color: rgb(168, 42, 190);
+    border:rgb(168, 42, 190) solid 1px;
+}
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-4 .cal-event-body {
+    background-color: rgba(168, 42, 190, .8);
+    border: rgb(168, 42, 190) solid 1px;
+}
+
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-5 .cal-event-head {
+    background-color: rgb(167, 46, 41);
+    border:rgb(167, 46, 41) solid 1px;
+}
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-5 .cal-event-body {
+    background-color: rgba(167, 46, 41, .8);
+    border: rgb(167, 46, 41) solid 1px;
+}
+
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-6 .cal-event-head {
+    background-color: rgb(80, 180, 45);
+    border:rgb(80, 180, 45) solid 1px;
+}
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-6 .cal-event-body {
+    background-color: rgba(80, 180, 45, .8);
+    border: rgb(80, 180, 45) solid 1px;
+}
+
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-7 .cal-event-head {
+    background-color: rgb(103, 74, 190);
+    border:rgb(103, 74, 190) solid 1px;
+}
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-7 .cal-event-body {
+    background-color: rgba(103, 74, 190, .8);
+    border: rgb(103, 74, 190) solid 1px;
+}
+
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-8 .cal-event-head {
+    background-color: rgb(190, 145, 37);
+    border:rgb(190, 145, 37) solid 1px;
+}
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-8 .cal-event-body {
+    background-color: rgba(190, 145, 37, .8);
+    border: rgb(190, 145, 37) solid 1px;
+}
+
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-9 .cal-event-head {
+    background-color: rgb(35, 180, 168);
+    border:rgb(35, 180, 168) solid 1px;
+}
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-9 .cal-event-body {
+    background-color: rgba(35, 180, 168, .8);
+    border: rgb(35, 180, 168) solid 1px;
+}*/
+
+
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-0 .cal-event-wrapper {
+    background-color: rgb(45, 95, 167);
+}
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-1 .cal-event-wrapper {
+    background-color: rgb(42, 190, 87);
+}
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-2 .cal-event-wrapper {
+    background-color: rgb(180, 84, 39);
+}
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-3 .cal-event-wrapper {
+    background-color: rgb(180, 169, 37);
+}
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-4 .cal-event-wrapper {
+    background-color: rgb(168, 42, 190);
+}
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-5 .cal-event-wrapper {
+    background-color: rgb(167, 46, 41);
+}
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-6 .cal-event-wrapper {
+    background-color: rgb(80, 180, 45);
+}
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-7 .cal-event-wrapper {
+    background-color: rgb(103, 74, 190);
+}
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-8 .cal-event-wrapper {
+    background-color: rgb(190, 145, 37);
+}
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-9 .cal-event-wrapper {
+    background-color: rgb(35, 180, 168);
+}
+.cal-calendar .cal-day .cal-container .cal-event.cal-group-10 .cal-event-wrapper {
+    background-color: rgb(45, 95, 167);
+}
+
+
