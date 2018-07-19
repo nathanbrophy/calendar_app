@@ -1,11 +1,10 @@
-**Original developer:** Maverick Software Consulting<br> 
 **Modifying developer:** [Nathan Brophy](mailto:broph035@umn.edu)
 
 ## Modifications
 
 	* Optimizations were made to the original code to speeed up the loading process.
 	* The controllers and directives were, in part, rewritten to make more sense.
-		* Variable names, code structure, and overall best practices were overhauled and made better.
+		* Variable names, code structure, and overall best practices were overhauled.
 		* Fixing and revamping some logic. 
 	* Slight build system modifications to be more transparent.
 	* Entire project was combed through, comments, and JSdocs were added to make future modifications easier to integrate to the current system.
