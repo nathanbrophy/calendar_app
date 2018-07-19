@@ -148,7 +148,7 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
                 function revert() {
                     calEventHandler.isChanging = true;
                     scope.event.start = new Date(startStartTime);
-                    scope.event.end = new Date(startEndTime);
+                    scope.event.end   = new Date(startEndTime);
 
                     calEventHandler.dateChange(scope.event, elem, null, null);
                     calEventHandler.isChanging = false;
@@ -161,7 +161,7 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
                  */
                 function mouseenter(e, b, c, d) {
                     var destElem = findParentDay(e.target); //find the parent of the element the mouse entered
-                    var srcElem = findParentDay(elem);      //find the parent of the element the mouse is dragging 
+                    var srcElem  = findParentDay(elem);      //find the parent of the element the mouse is dragging 
                     calEventHandler.dateChange(scope.event, elem, srcElem, destElem); //update the event to have the new date 
                 }
                 /**

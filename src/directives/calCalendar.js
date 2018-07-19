@@ -26,9 +26,7 @@ dynamicCal.directive('calCalendar', ['$document', 'calEventHandler', 'calDayObje
 
 //Set up and register the controller 
 dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', function ($scope, $timeout, calDayObject) {
-    if ($scope.config == null) {
-        $scope.config = {};
-    }
+    if($scope.config == null) $scope.config = {};
     this.calendar = $scope.config;
     this.onEventChange = $scope.onEventChange;
     /**
@@ -62,9 +60,6 @@ dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', 
     $scope.isDate = function (obj) {
         return obj.constructor === Date;
     }
-
-    $scope.dayEvents = [];
-    $scope.lastLength = 0;
     /**
      * @param {Date} date1 is one of the dates that we are checking for equality for 
      * @param {Date} date2 is the other date that we are checking equality against
@@ -103,8 +98,9 @@ dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', 
                             var events = [];
                             var nextDay = new Date(day.date.getFullYear(), day.date.getMonth(), day.date.getDate() + 1);
                             while (eventIndex < eventCopy.length && eventCopy[eventIndex].start.getTime() < nextDay.getTime()) {
-                                if ($scope.isSameDay(eventCopy[eventIndex].start, day.date)) {
-                                    events.push(eventCopy[eventIndex]);
+                                var coppied_event = eventCopy[eventIndex];
+                                if ($scope.isSameDay(coppied_event.start, day.date)) {
+                                    events.push(coppied_event);
                                 }
                                 eventIndex++;
                             }
@@ -143,10 +139,10 @@ dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', 
     if (config.cellHeight == undefined)    config.cellHeight    = CONFIG_DEFAULTS.cellHeight;      //set the default for cellHeight
 
     config.title = "";
-    config.startDate = new Date(today); //make a copy of the current date to default the startDate to 
-    config.endDate = new Date(today);   //make a copy of the current date to default the endDate to
-    config.today = today;
-    config.months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    config.startDate  = new Date(today); //make a copy of the current date to default the startDate to 
+    config.endDate    = new Date(today); //make a copy of the current date to default the endDate to
+    config.today      = today;
+    config.months     = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     config.daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     config.prev = function () { //function that moves the current calendar week back one 
         this.moveView(-1);
@@ -173,11 +169,9 @@ dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', 
         switch (this.durration) {
             case "month":
                 this.date.setDate(1); //changing the month so change the current day to th 1st 
-                //we use 1 * multiplier here to take advantage of JS implicit type conversions (in case the multiplier comes in as a string from a json object)
                 this.date.setMonth(this.date.getMonth() +  multilpier); 
                 break;
             case "day":
-                //we use 1 * multiplier here to take advantage of JS implicit type conversions (in case the multiplier comes in as a string from a json object)
                 this.date.setDate(this.date.getDate() +  multilpier);
                 break;
             default: //"week"
@@ -196,7 +190,7 @@ dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', 
         this.days = [];
         this.date.setHours(0, 0, 0, 0);
         var startDate = new Date(this.date);
-        var endDate = new Date(this.date);
+        var endDate   = new Date(this.date);
         switch (this.durration) { //set the calendar title based on the duration in the configuration and change the date variables
             case "month":
                 startDate.setDate(1);
@@ -229,10 +223,10 @@ dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', 
             end       = new Date(endDate);
         }
 
-        var calendarMonth = new Array(numberOfWeeks);   //this is our month, it's an array of all of the weeks in that month
+        var calendarMonth = [];   //this is our month, it's an array of all of the weeks in that month
         var cur           = new Date(beginning);        //this is the begining of the current calendar view
         for (var i = 0; i < numberOfWeeks; i++) {       //loop through the number of weeks in the month
-            calendarMonth[i] = new Array();             //create a new array of days to be stored in our weeks
+            calendarMonth.push(new Array());            //create a new array of days to be stored in our weeks
             for (var j = 0; j < 7 && cur <= end; j++) { //loop through the number of days in a week or until end of month
                 var calendarDay = new calDayObject(cur, !(cur >= startDate && cur <= endDate))
                 calendarMonth[i].push(calendarDay);
