@@ -30,7 +30,7 @@ dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', 
     this.calendar = $scope.config;
     this.onEventChange = $scope.onEventChange;
     /**
-     * @param {Event} event is the event object coming in from the calendar (most likely a person's schedule time information)
+     * @param {EventWrapper} event is the event object coming in from the calendar (most likely a person's schedule time information)
      * If there is a date change when someone edits their schedule, then here we update the events in the scope to reflect
      * the new changes.  
      */
@@ -73,8 +73,8 @@ dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', 
      */
     $scope.updateEvents = function () {
         /**
-         * @param {Event} event is a calendar event taken in from the array of events
-         * @param {Event} other is a calendar event taken in from the array of events 
+         * @param {EventWrapper} event is a calendar event taken in from the array of events
+         * @param {EventWrapper} other is a calendar event taken in from the array of events 
          * @returns {number} returns the difference of event's time and other's time to be used in the array sort method
          * In case of collision with the events being started at the same time, but ending at different times, the end times 
          * are then used instead of the start times as the sort values.  
@@ -87,7 +87,7 @@ dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', 
             var eventCopy = $scope.events.slice();
             eventCopy.sort(event_sorter);
 
-            var eventIndex = 0;
+            //var eventIndex = 0;
             var weeks = $scope.view.weeks;
             if (weeks != undefined) {
                 for (var i = 0; i < weeks.length; i++) {
@@ -95,6 +95,7 @@ dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', 
                     for (var j = 0; j < current_week.length; j++) {
                         var day = current_week[j];
                         if (!day.isPlaceholder) { //make sure the day is actually an event we care about
+                            var eventIndex = 0;
                             var events = [];
                             var nextDay = new Date(day.date.getFullYear(), day.date.getMonth(), day.date.getDate() + 1);
                             while (eventIndex < eventCopy.length && eventCopy[eventIndex].start.getTime() < nextDay.getTime()) {

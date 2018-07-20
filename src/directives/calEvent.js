@@ -1,26 +1,26 @@
 dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandler', '$timeout', function ($document, $templateCache, calEventHandler, $timeout) {
     /**
-     * @param {Event} event is the event that we are currently inspecting
-     * @param {number} callHeight is the minimum height a cell can be
+     * @param {EventWrapper} event is the event that we are currently inspecting
+     * @param {number} callHeight is the height of a cell in the calendar grid
      * @returns {number} the height of the current event
      */
     var getHeight = function (event, cellHeight) {
         var startHours = event.start.getHours() + event.start.getMinutes() / 60;
         var endHours   = event.end.getHours() + event.end.getMinutes() / 60;
         if (endHours == 0 && event.start < event.end) endHours = 24;
-        var height = (endHours - startHours) * (2 * cellHeight);
+        var height = (endHours - startHours) * (2 * cellHeight); //*2 because we are in half hour incraments
         if (height <= 0) height = cellHeight;  // Min height of cellHeight
         return height;
     }
     /**
-     * @param {Event} event is the event that we are currently inspecting
-     * @param {number} cellHeight is the minimum height a cell can be
+     * @param {EventWrapper} event is the event that we are currently inspecting
+     * @param {number} cellHeight is the height of a cell in the calendar grid
      * @param {Date} startTime is the date object representing the start time of the cell
      * @returns {number} position of the top of the cell 
      */
     var getTop = function (event, cellHeight, startTime) {
         var startHours = event.start.getHours() + event.start.getMinutes() / 60;
-        return (startHours - startTime) * 2 * cellHeight;
+        return (startHours - startTime) * 2 * cellHeight; //*2 because we are in half hour incraments 
     }
     return {
         restrict: 'E',
@@ -37,9 +37,9 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
         require: ['^calCalendar', '^calDay'],
         template: "<div class='cal-event-wrapper'><ng-include src='templateUrl'></ng-include> <label ng-show='event.edit' class='cal-resize'></label></div>",
         link: function (scope, elem, attrs, controllers) {
-            var calController = controllers[0];
-            var dayController = controllers[1];
-            scope.cellHeight = calController.calendar.cellHeight;
+            var calController = controllers[0]; //calCalendar.js
+            var dayController = controllers[1]; //calDay.js
+            scope.cellHeight  = calController.calendar.cellHeight;
             scope.templateUrl = "calEvent.html";
             if (calController.calendar.eventTemplateUrl != null) scope.templateUrl = calController.calendar.eventTemplateUrl;
             else if (calController.calendar.eventTemplate != null) {
@@ -52,11 +52,15 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
                 elem.addClass("cal-group-" + (scope.event.group % 20));
             }
             var startY = 0, y = 0;
+            var stepPx = scope.cellHeight * 2 * scope.calendar.editStep; //*2 because we are in half hour incraments
+            /**
+             * Set the dimentions of the curent event to fit nicely in our calendar grid, and display with the correct height
+             */
             function setDimentions() {
-                y = getTop(scope.event, scope.cellHeight, scope.startTime); // elem, { viewStart: scope.startTime, viewEnd: scope.endTime }); //scope.calendar);
-                elem.css("height", getHeight(scope.event, scope.cellHeight) + "px"); //elem, { viewStart: scope.startTime, viewEnd: scope.endTime }) + "px"); //scope.calendar) + "px");
+                y = getTop(scope.event, scope.cellHeight, scope.startTime); 
+                elem.css("height", getHeight(scope.event, scope.cellHeight) + "px"); 
                 elem.css("top", y + "px");
-                stepPx = 2 * scope.cellHeight * scope.calendar.editStep;
+                stepPx = 2 * scope.cellHeight * scope.calendar.editStep; //*2 because we are in half hour incraments
                 elem.css("width", scope.eventWidth);
                 elem.css("left", scope.eventLeft);
             }
@@ -81,33 +85,36 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
                     scope.event.end.setHours(scope.event.start.getHours(), scope.event.start.getMinutes());
                 }
             }, true);
-            var stepPx = scope.cellHeight * 2 * scope.calendar.editStep;
             $timeout(setupEventChange, 0);
             function setupEventChange() {               
                 var parent = elem;
-                //let's loop through the DOM to find the element we need! Length check comes first so we avoid a null reference error
+                //let's bubble up through the DOM to find the element we need! Length check comes first so we avoid a null reference error
                 while (parent.length != 0 && parent[0].tagName != "CAL-CALENDAR") {
                     parent = parent.parent();
                 }
-                var dayElements    = parent.find('cal-day');
-                var startStartTime = new Date(scope.event.start);
-                var startEndTime   = new Date(scope.event.end);
+                var dayElements     = parent.find('cal-day');
+                var originStartTime = new Date(scope.event.start); //control to track the original state of the event object
+                var originEndTime   = new Date(scope.event.end);   //control to track the original state of the event object
 
                 var clickStart, topStart, topEnd, clickEnd, originParent;
 
                 elem.on('click', function () {
                     if(!scope.event.edit) {
-                        if (!isChanged() && scope.onEventClick != undefined && scope.onEventClick.constructor == Function)
+                        if (!isChanged() && scope.onEventClick != undefined && scope.onEventClick.constructor == Function) {
                             scope.onEventClick(scope.event);
+                        }
                     }
                 });
-
+                /**
+                 * @param {MouseEvent} e is the mouse event object coming in from the click
+                 * First we close the tip popup, then get everything set up so the calendar event can be resized.
+                 */
                 elem.on('mousedown', function (e) {
                     closeTip(); // close hover tip
                     if (scope.event.edit && scope.calendar.type != "list") {
                         calEventHandler.start(scope.event, elem);
-                        startStartTime = new Date(scope.event.start);
-                        startEndTime   = new Date(scope.event.end);
+                        originStartTime = new Date(scope.event.start);
+                        originEndTime   = new Date(scope.event.end);
 
                         calEventHandler.isChanging = true;
                         originParent = findParentDay(elem);
@@ -128,32 +135,33 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
                  */
                 function findParentDay(elem) {
                     var count = 0;
-                    var dayElem = $_(elem)[0];
-                    while (count < 10 && dayElem.tagName != "CAL-DAY") {
-                        dayElem = $_(dayElem).parent()[0];
+                    var parent = $_(elem)[0];
+                    while (count < 10 && parent.tagName != "CAL-DAY") { //count < 10 because that is the deepest layer we can get with the calendar 
+                        parent = $_(parent).parent()[0];
                         count++;
                     }
-                    if (dayElem.tagName != "CAL-DAY") dayElem = $_(elem).parent()[0];
-                    return dayElem;
+                    return parent.tagName == "CAL-DAY" ? parent : $_(elem).parent()[0];
                 }
                 /**
-                 * @returns {Boolean} whether or not the event that moved was changed or dragged back to its original spot.  
+                 * @returns {Boolean} whether or not the event that moved or was edited was changed or dragged back to its original spot.  
                  */
                 function isChanged() {
-                    return startStartTime.getTime() != scope.event.start.getTime() || startEndTime.getTime() != scope.event.end.getTime();
+                    return originStartTime.getTime() != scope.event.start.getTime() || originEndTime.getTime() != scope.event.end.getTime();
                 }
                 /**
-                 * This is a function to revert an event back to the original before the move.  
+                 * This is a function to revert an event back to the original before the move. 
+                 * Using the global controls originStartTime and originEndTime that track the event's original state. 
                  */
                 function revert() {
                     calEventHandler.isChanging = true;
-                    scope.event.start = new Date(startStartTime);
-                    scope.event.end   = new Date(startEndTime);
+                    scope.event.start = new Date(originStartTime);
+                    scope.event.end   = new Date(originEndTime);
 
                     calEventHandler.dateChange(scope.event, elem, null, null);
                     calEventHandler.isChanging = false;
                 }
                 /**
+                 * @param {MouseEvent} e is the mouse event object coming in 
                  * @param b is now deprecated, but kept for cross platform support
                  * @param c is now deprecated, but kept for cross platform support
                  * @param d is now deprecated, but kept for cross platform support
@@ -165,30 +173,30 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
                     calEventHandler.dateChange(scope.event, elem, srcElem, destElem); //update the event to have the new date 
                 }
                 /**
+                 * @param {MouseEvent} e is the mouseevent object coming in 
                  * This function is meant to handle what happens when we click and drag the calendar event around the screen.
                  */
                 function mousemove(e) {
                     elem.addClass("cal-dragging");
                     clickEnd = e.pageY - elem.parent()[0].offsetTop;
-                    topEnd = clickEnd - (clickStart - topStart);
-                    var pxMoveOffset = topEnd;
-                    var newHour = Math.max(scope.startTime, Math.ceil(pxMoveOffset / stepPx) * scope.calendar.editStep + scope.startTime);
+                    topEnd   = clickEnd - (clickStart - topStart);
+                    var newHour     = Math.max(scope.startTime, Math.ceil(topEnd / stepPx) * scope.calendar.editStep + scope.startTime);
                     var eventLength = (scope.event.end.getTime() - scope.event.start.getTime()) / 1000 / 60 / 60; //time in ms / ms / s / m
                     newHour = Math.min(newHour, scope.endTime - eventLength);
                     scope.event.start.setHours(Math.floor(newHour));
-                    scope.event.start.setMinutes(newHour % 1 * 60);
-                    scope.event.end.setTime(scope.event.start.getTime() + (startEndTime.getTime() - startStartTime.getTime()));
+                    scope.event.start.setMinutes(newHour % 1 * 60); //%1 to isolate the decimal part of the float
+                    scope.event.end.setTime(scope.event.start.getTime() + (originEndTime.getTime() - originStartTime.getTime()));
                     scope.$apply();
                 }
                 /**
-                 * This function handles what happens when we let go of the mouse left click, and applies our changes made to the event.
+                 * This function handles what happens when we let go of the mouse left click, and applies our changes made to the event, after closing the popup tip.
                  */
                 function mouseup() {
                     closeTip();
                     elem.removeClass("cal-dragging").removeClass("cal-resizing"); //mark the calendar event as done being moved.
                     calEventHandler.isChanging = false; 
                     if (isChanged()) {
-                        if (scope.onEventChange != undefined && scope.onEventChange(scope.event, startStartTime, startEndTime) == false) {
+                        if (scope.onEventChange != undefined && scope.onEventChange(scope.event, originStartTime, originEndTime) == false) {
                             revert(); //in this case nothing was really changed, so we revert the event back to how it was before editing.  
                         }
                         else { //Here things were changed with the event, so we go ahead and prep the changes! 
@@ -204,8 +212,9 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
                         scope.$apply(); //apply the schanges to the scope to save everything! 
                     }
                     else {
-                        if (scope.onEventClick != undefined && scope.onEventClick.constructor == Function)
+                        if (scope.onEventClick != undefined && scope.onEventClick.constructor == Function) {
                             scope.onEventClick(scope.event);
+                        }
                     }
                     $document.off('mousemove', resizeMousemove);
                     $document.off('mousemove', mousemove);
@@ -219,19 +228,21 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
                         calEventHandler.isChanging = true;
                         e.stopPropagation();
                         startY = e.pageY;
-                        startEndTime = new Date(scope.event.end);
+                        originEndTime = new Date(scope.event.end);
                         $document.on('mousemove', resizeMousemove);
                         $document.on('mouseup', mouseup);
                     }
                 });
                 /**
+                 * @param {MouseEvent} e is the mouse event object coming in 
                  * Function to handle what to do when we click the top or bottom of the calendar event to shrink or grow the event.
+                 * We change the hours of the event dynamically depending on where the mouse is on the screen with respect to the origin position
                  */
                 function resizeMousemove(e) {
                     elem.addClass("cal-resizing");
                     var addedHours = Math.ceil((e.pageY - startY) / stepPx) * scope.calendar.editStep;
-                    var startEndHours = startEndTime.getHours() + (startEndTime.getMinutes() / 60);
-                    if (startEndHours == 0 && startEndTime > scope.event.start) startEndHours = 24;
+                    var startEndHours = originEndTime.getHours() + (originEndTime.getMinutes() / 60);
+                    if (startEndHours == 0 && originEndTime > scope.event.start) startEndHours = 24;
                     var totalHours = startEndHours + addedHours;
                     totalHours = Math.max(totalHours, .5);
                     if (totalHours <= scope.endTime) {
@@ -253,10 +264,10 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
                 elem.on("mouseleave", function (e) {
                     closeTip(e);
                 });
-                var tip;
-                var tipstartX, tipstartY;
+                var tip, tipstartX, tipstartY;
                 /**
                  * This is a function that handles displaying the tip which is a small description of the event that pops up on mouseenter.
+                 * @param {Event} e is the event object coming in 
                  * @see setTipPosition
                  */
                 function openTip(e) {
@@ -281,6 +292,7 @@ dynamicCal.directive('calEvent', ['$document', '$templateCache', 'calEventHandle
                     }
                 }
                 /**
+                 * @param {Event} e is the event object coming in 
                  * Function to set the position of the tip popup display.
                  */
                 function setTipPosition(e) {

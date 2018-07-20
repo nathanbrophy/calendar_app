@@ -13,11 +13,13 @@ dynamicCal.directive('calHeader', ['$templateCache', function ($templateCache) {
 
 dynamicCal.controller("calHeaderCtr", ["$scope", function ($scope) {
     var contr = this;
-    $scope.$watch('calendar', function () { contr.calendar = $scope.calendar; })
+    $scope.$watch('calendar', function () { 
+        contr.calendar = $scope.calendar; 
+    });
 
     var tempUrl = 'calDefaultHeaderUrl';
     if ($scope.calendar != undefined) {
-        var template = $scope.calendar.headerTemplate;
+        var template    = $scope.calendar.headerTemplate;
         var templateUrl = $scope.calendar.headerTemplateUrl;
     }
 
@@ -31,7 +33,7 @@ dynamicCal.controller("calHeaderCtr", ["$scope", function ($scope) {
         }
     }
     $scope.templateUrl = templateUrl;
-}]); //end calendar controller
+}]); //end calendar header controller
 
 dynamicCal.directive('calPrevious', function () { //directive to handle the previous arrow in the calendar header
     return {
@@ -89,7 +91,7 @@ dynamicCal.directive('calViewToggle', function () {
     return {
         require: ['^calHeader'],
         link: function (scope, elem, attrs, controller) {
-            scope.calListClasses = attrs.calListClass == undefined ? [] : attrs.calListClass.split(' ');
+            scope.calListClasses     = attrs.calListClass == undefined ? [] : attrs.calListClass.split(' ');
             scope.calScheduleClasses = attrs.calScheduleClass == undefined ? [] : attrs.calScheduleClass.split(' ');
             elem.on('click', function () {
                 if (scope.ctrl.calendar.type == "list") controller[0].calendar.type = "schedule";

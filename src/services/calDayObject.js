@@ -1,5 +1,4 @@
 dynamicCal.factory('calDayObject', function () {
-
     /**
      * @param {Event} event is the event object coming in that we wish to wrap
      */
@@ -22,13 +21,10 @@ dynamicCal.factory('calDayObject', function () {
      * @param {Array} events is the array of events in the calendar
      */
     Day.prototype.setEvents = function (events) {
-        if (events == null) {
-            this.events = [];
-        }
-        else {
-            this.events = new Array(events.length);
+        this.events = [];
+        if(events != null) {
             for (var i = 0; i < events.length; i++) {
-                this.events[i] = new EventWrapper(events[i]);
+                this.events.push(new EventWrapper(events[i]));
             }
             this.sort();
         }
@@ -61,16 +57,16 @@ dynamicCal.factory('calDayObject', function () {
      * @returns {Boolean} whether or not the current event of interest overlaps any of the other events in the calendar
      */
     function isOverlap(event, otherEvents){
-        for (var i=0; i< otherEvents.length; i++) {
+        for (var i = 0; i < otherEvents.length; i++) {
             if(event.event.start < otherEvents[i].event.end && event.event.end > otherEvents[i].event.start) {
-                return true;;
+                return true;
             }
         }
         return false;
     }
     /**
      * @param {Array} events is all the events in the calendar that we need to sift through to level out any overlaps before we sort
-     * @returns {Array} an array of the levels of overlay we have to sort through 
+     * @returns {Array} an array of the levels of overlap we have to sort through 
      */
     function buildSortLevels(events){
         var levels = [];
@@ -137,17 +133,24 @@ dynamicCal.factory('calDayObject', function () {
         }
     };
     /**
+     * @param {EventWrapper} event is the event coming in from the events array in the map function
+     * @param {number} index is the index of that event in the events array
+     * @returns {EventWrapper} the event with the updated tie breaker index value set
+     * This function does the same as for (var i = 0; i < this.events.length; i++) this.events[i].tieBreaker = i, it just does it more efficiently
+     */
+    var setTieBreakers = function(event, index) {
+        event.tieBreaker = index;
+        return event;   
+    }
+    /**
      * @param {Boolean} reorder is a flag that's let's us know if we should reorder the events in the list or not
      */
     Day.prototype.sort = function (reorder) {
         if (this.events.length != eventCount) {
-            eventCount = this.events.length;
-            for (var i = 0; i < this.events.length; i++) {
-                this.events[i].tieBreaker = i;    //in case of a tie we set a property of that event to its original position in the array 
-            }
+            eventCount  = this.events.length;
+            this.events = this.events.map(setTieBreakers);
         }
-        if (reorder == null) reorder = true;
-        if (reorder) {                           //here we can go ahead and reorder those events!
+        if (reorder || reorder == null) { //here we can go ahead and reorder those events!
             this.events.sort(reorderEvents);
         }
         var eventList = [].concat(this.events);  //create a deep copy of the events list 
@@ -182,6 +185,5 @@ dynamicCal.factory('calDayObject', function () {
             }
         }
     } //end sort function 
-
     return Day;
 }); //end cal day object factory
