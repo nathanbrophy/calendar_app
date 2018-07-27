@@ -179,9 +179,15 @@ dynamicCal.controller('calCalendarCtrl', ["$scope", '$timeout', 'calDayObject', 
                 //The default is week, so we advance or backtrack the calendar by 7 days
                 this.date.setDate(this.date.getDate() + (7 * multilpier));
         }
-        sessionStorage.viewDate = this.date.toString();
+        /**
+         * Set session storage variables to keep track of where the calendar view currrently is centered on.
+         * With how the angular router handles our data it really gets screwy when we go from editing the schedule to team view, and
+         * We lose scope of what our current day is for some reason and we default back to today's date.
+         * So instead of dealing with the Angular router we set this data as globally available in the session storage.
+         */
+        sessionStorage.viewDate      = this.date.toString();
         sessionStorage.viewStartDate = $scope.config.startDate.toString();
-        sessionStorage.viewEndDate = $scope.config.endDate.toString();
+        sessionStorage.viewEndDate   = $scope.config.endDate.toString();
         this.load(); //load the calendar in after we change the object fields 
     };
     /**
